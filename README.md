@@ -46,6 +46,7 @@ rrd:
           rows: 12M
 ```
 
+```yaml
 path:
   description: The location relative to your HA config path where you want to store your rrd database files
   required: false
@@ -104,3 +105,4 @@ databases:
           description: amount of steps recorded in the database
           required: true
           type: int
+```
