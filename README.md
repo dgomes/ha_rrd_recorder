@@ -46,6 +46,7 @@ rrd:
           rows: 12M
 ```
 
+### Configuration Options:
 ```yaml
 path:
   description: The location relative to your HA config path where you want to store your rrd database files
