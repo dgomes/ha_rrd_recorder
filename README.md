@@ -1,0 +1,106 @@
+# RRD Recorder for Home Assistant
+
+This integration is similar to other recorders (e.g. influxdb) but uses [RRDTool](https://oss.oetiker.ch/rrdtool/) as a backend.
+The main benefit of using RRD Recorder is that you can store data for long periods of time without the complexity of adding servers/addon's, unfortunantely it comes with the cost of loss of detailed information for older periods of time (the concept is that you don't need details to the second for data generated a year ago, the average of the day year ago is enough)
+
+Currently this integration also records to the RRD database files. In the future I plan for a "Camera" platform that will generate the graphs
+
+## Installation
+
+RRD Recorder depends on librrd which is a C library. 
+
+You will need to follow the steps in https://pythonhosted.org/rrdtool/install.html before this integration will work.
+
+## Configution
+
+Example:
+
+```yaml
+# Example configuration.yaml
+rrd:
+  path: '/rrd'
+  databases:
+    - name: internet_connection
+      step: 30s
+      data_sources:
+        - sensor: sensor.upnp_router_bytes_received
+          name: recv
+          cf: COUNTER
+          heartbeat: 300
+        - sensor: sensor.upnp_router_bytes_sent
+          name: sent
+          cf: COUNTER
+          heartbeat: 300
+      round_robin_archives:
+        - cf: AVERAGE
+          steps: 1m
+          rows: 1h
+        - cf: AVERAGE
+          steps: 5m
+          rows: 1d
+        - cf: AVERAGE
+          steps: 1h
+          rows: 1w
+        - cf: AVERAGE
+          steps: 1d
+          rows: 12M
+```
+
+path:
+  description: The location relative to your HA config path where you want to store your rrd database files
+  required: false
+  type: string
+tolerance:
+  description: RRD databases with more then one DS are required to be updated simultaneously, tolerance tells how long to wait for next DS values in order to still consider simultaneous
+  required: false
+  type: int
+  default: 1second
+databases:
+  description: List of RRD databases (files) 
+  required: true
+  type: list
+  keys:
+    name:
+      description: Name of the database
+      required: true
+      type: string
+    step: 
+      description: how often to expect updates
+      required: false
+      type: seconds
+      default: 300
+    data_sources:
+      description: Data Sources (DS) of the database
+      required: true
+      type: list
+      keys:
+        sensor:
+          description: entity id to keep record of
+          required: true
+          type: entity_id
+        name:
+          description: short name to be used internally by RRD
+          required: true
+        cf: 
+          description: consolidation function (check https://oss.oetiker.ch/rrdtool/doc/rrdcreate.en.html) for available functions
+          required: true
+          type: list
+        heartbeat:
+          description: amount of time after which DS is considered unknown
+    round_robin_archives:
+      description: Round Robin Archives stored
+      required: true
+      type: list
+      keys:
+        cf: 
+          description: consolidation function (check https://oss.oetiker.ch/rrdtool/doc/rrdcreate.en.html) for available functions
+          required: true
+          type: list
+        steps:
+          description: periodicy of records (a record is stored every step)
+          required: true
+          type: seconds
+        rows:
+          description: amount of steps recorded in the database
+          required: true
+          type: int

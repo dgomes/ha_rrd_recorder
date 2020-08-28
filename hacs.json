@@ -1,0 +1,5 @@
+{
+  "name": "RRD Recorder",
+  "render_readme": true,
+  "iot_class": "Local Push"
+}
