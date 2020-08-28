@@ -11,6 +11,11 @@ RRD Recorder depends on librrd which is a C library.
 
 You will need to follow the steps in https://pythonhosted.org/rrdtool/install.html before this integration will work.
 
+Most likely this will suffice:
+```bash
+$ sudo apt-get install librrd-dev libpython3-dev
+```
+
 ## Configution
 
 Example:
