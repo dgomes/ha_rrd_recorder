@@ -131,7 +131,7 @@ databases:
 
 The camera component tries to guess everything from the rrd file. But you can always pass new arguments in *args*.
 
-**Hint** use a tool such as (http://rrdwizard.appspot.com/rrdgraph.php)[http://rrdwizard.appspot.com/rrdgraph.php]
+**Hint** use a tool such as [http://rrdwizard.appspot.com/rrdgraph.php](http://rrdwizard.appspot.com/rrdgraph.php)
 ```yaml
 name:
   description: Name of the camera entity 
