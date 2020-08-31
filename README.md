@@ -44,7 +44,22 @@ rrd:
         - cf: AVERAGE
           steps: 1d
           rows: 12M
+
+camera:
+  - platform: rrd
+    name: vodafone
+    rrdfile: /rrd/mydata.rrd
+    timerange: 2d  
+    args:   #if you don't define any args you will get lines corresponding to the DS's in the file
+      - "VDEF:vrecv=Recv,MAXIMUM"
+      - "VRULE:vrecv#FF3300:MAX"
+      - "VDEF:sent=Sent,MAXIMUM"
+      - "VRULE:sent#000000:MAX"
+      - "AREA:Recv#00FF00:Received Bytes"
+      - "LINE1:Sent#0033FF:Sent Bytes"
 ```
+
+## RRD Configuration
 
 path:
   description: The location relative to your HA config path where you want to store your rrd database files
@@ -104,3 +119,33 @@ databases:
           description: amount of steps recorded in the database
           required: true
           type: int
+
+## Camera configuration
+
+The camera component tries to guess everything from the rrd file. But you can always pass new arguments in *args*.
+
+**Hint** use a tool such as (http://rrdwizard.appspot.com/rrdgraph.php)[http://rrdwizard.appspot.com/rrdgraph.php]
+
+name:
+  description: Name of the camera entity 
+  required: true
+  type: string
+rrdfile:
+  description: path to the rrd file
+  required: true
+width:
+  description: width of the generated graph
+  required: false
+  default: 400
+height:
+  description: height of the generated graph
+  required: false
+  default: 100
+timerange:
+  description: amount of time to be displayed
+  required: false
+  default: 1d
+args:
+  description: common arguments used by *rrdtool graph*
+  required: false
+
