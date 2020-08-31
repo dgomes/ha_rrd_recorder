@@ -16,7 +16,7 @@ Most likely this will suffice:
 $ sudo apt-get install librrd-dev libpython3-dev
 ```
 
-## Configution
+## Configuration
 
 Example:
 
@@ -64,7 +64,7 @@ camera:
       - "LINE1:Sent#0033FF:Sent Bytes"
 ```
 
-## RRD Configuration
+### RRD Configuration
 
 ```yaml
 path:
@@ -127,7 +127,7 @@ databases:
           type: int
 ```
 
-## Camera configuration
+### Camera configuration
 
 The camera component tries to guess everything from the rrd file. But you can always pass new arguments in *args*.
 
