@@ -101,7 +101,6 @@ class RRDGraph(Camera):
         """
         _LOGGER.debug("Get RRD camera image")
 
-        print(*self._lines)
         try:
             ret = rrdtool.graphv(
                 "-",
