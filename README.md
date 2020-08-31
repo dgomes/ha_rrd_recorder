@@ -11,6 +11,11 @@ RRD Recorder depends on librrd which is a C library.
 
 You will need to follow the steps in https://pythonhosted.org/rrdtool/install.html before this integration will work.
 
+Most likely this will suffice:
+```bash
+$ sudo apt-get install librrd-dev libpython3-dev
+```
+
 ## Configution
 
 Example:
@@ -61,6 +66,7 @@ camera:
 
 ## RRD Configuration
 
+```yaml
 path:
   description: The location relative to your HA config path where you want to store your rrd database files
   required: false
@@ -119,13 +125,14 @@ databases:
           description: amount of steps recorded in the database
           required: true
           type: int
+```
 
 ## Camera configuration
 
 The camera component tries to guess everything from the rrd file. But you can always pass new arguments in *args*.
 
 **Hint** use a tool such as (http://rrdwizard.appspot.com/rrdgraph.php)[http://rrdwizard.appspot.com/rrdgraph.php]
-
+```yaml
 name:
   description: Name of the camera entity 
   required: true
@@ -148,4 +155,4 @@ timerange:
 args:
   description: common arguments used by *rrdtool graph*
   required: false
-
+```
