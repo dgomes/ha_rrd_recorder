@@ -66,6 +66,7 @@ class RRDGraph(Camera):
         self._height = height
         self._timerange = timerange
         self._args = args
+        self._unique_id = f"{self._rrd}"  # TODO use also an md5sum of args
 
         color = iter(["#00FF00", "#0033FF"])
         self._defs = []
@@ -76,6 +77,7 @@ class RRDGraph(Camera):
             for key, value in info.items():
                 if ".index" in key:
                     ds = re.search(r"\[(.*?)\]", key).group(1)
+                    self._unique_id += f"_{ds}"
                     cf = info[f"rra[{value}].cf"]
                     self._defs.append(f"DEF:{ds.capitalize()}={self._rrd}:{ds}:{cf}")
                     # Check if args already defines LINE or AREA for our DEF, this also means the user can overwrite it
@@ -90,8 +92,7 @@ class RRDGraph(Camera):
                         )
         except rrdtool.OperationalError as exc:
             _LOGGER.error(exc)
-
-        self._unique_id = f"{self._rrd}"  # TODO use also an md5sum of args
+        self._unique_id += f"_{self._step}"
 
     def camera_image(self):
         """
@@ -101,7 +102,6 @@ class RRDGraph(Camera):
         """
         _LOGGER.debug("Get RRD camera image")
 
-        print(*self._lines)
         try:
             ret = rrdtool.graphv(
                 "-",
