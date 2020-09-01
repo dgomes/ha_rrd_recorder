@@ -142,7 +142,8 @@ def setup(hass, config):
         ]
 
         if (
-            statistics.stdev(entities_last_changed) <= conf[CONF_TOLERANCE]
+            len(entities_last_changed) == 1
+            or statistics.stdev(entities_last_changed) <= conf[CONF_TOLERANCE]
         ):  # all entities recently updated so lets store
             try:
                 ds_names, values = zip(
