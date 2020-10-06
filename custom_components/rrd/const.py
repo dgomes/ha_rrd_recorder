@@ -3,14 +3,12 @@ from datetime import timedelta
 
 DEFAULT_DATABASE = "home_assistant.rrd"
 DOMAIN = "rrd"
-MIN_TIME_BETWEEN_UPDATES = timedelta(seconds=60)
 
 DEFAULT_STEP = "5m"
 RRD_DIR = "rrd"
 
 CONF_DBS = "databases"
 CONF_DS = "data_sources"
-CONF_TOLERANCE = "tolerance"
 CONF_SENSOR = "sensor"
 CONF_STEP = "step"
 CONF_CF = "cf"
