@@ -77,8 +77,6 @@ CONFIG_SCHEMA = vol.Schema(
 
 _LOGGER = logging.getLogger(__name__)
 
-hassIsShuttingDown = False
-
 
 def setup(hass, config):
     """Set up the RRD Recorder component."""
@@ -138,10 +136,6 @@ def setup(hass, config):
 
 
     def schedule_next_update(database):
-        # Do not schedule any new update, when HASS is shutting down
-        if (hassIsShuttingDown):
-            return
-
         # Scheduling
         step = convert_to_seconds(database[CONF_STEP])
 
@@ -226,8 +220,6 @@ def setup(hass, config):
     # Stop updating all RRD files, because HASS is shutting down
     def stop(_):
         _LOGGER.debug("Stopping data updating")
-        # Stop to schedule any new update
-        hassIsShuttingDown = True
 
         # Cancel all already scheduled updates
         for cancel_callback in cancel_callbacks.values():
