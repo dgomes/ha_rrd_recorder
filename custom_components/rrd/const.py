@@ -7,6 +7,8 @@ DOMAIN = "rrd"
 DEFAULT_STEP = "5m"
 RRD_DIR = "rrd"
 
+TIME_UNITS = {"s":"seconds", "m":"minutes", "h":"hours", "d":"days", "w":"weeks"}
+
 CONF_DBS = "databases"
 CONF_DS = "data_sources"
 CONF_SENSOR = "sensor"
