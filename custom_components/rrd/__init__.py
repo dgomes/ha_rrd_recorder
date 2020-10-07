@@ -189,7 +189,7 @@ def setup(hass, config):
                 )
                 sensor_value = "NaN"
 
-            # Add pais of name+value. Will be used as parameters for data save to rrd file.
+            # Add pairs of name, value. Will be used as parameters for data save to rrd file.
             ds_names.append(ds_name)
             ds_values.append(str(sensor_value))
 
