@@ -1,7 +1,7 @@
 {
   "domain": "rrd",
   "name": "RRD Recorder",
-  "documentation": "https://github.com/dgomes/rrd_encoder",
+  "documentation": "https://github.com/dgomes/rrd_recorder",
   "requirements": ["rrdtool==0.1.15"],
   "codeowners": ["@dgomes"]
 }

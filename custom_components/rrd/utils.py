@@ -1,5 +1,7 @@
 """Helper RRDTool functions."""
 import voluptuous as vol
+from datetime import timedelta
+from .const import TIME_UNITS
 
 
 def rrd_scaled_duration(duration):
@@ -21,3 +23,24 @@ def rrd_scaled_duration(duration):
         raise vol.Invalid("Duration must be a number.")
 
     return duration
+
+
+# Source: https://stackoverflow.com/a/54331471
+def convert_to_seconds(s):
+    if isinstance(s, int):
+        # We are dealing with a raw number
+        return s
+
+    try:
+        seconds = int(s)
+        # We are dealing with an integer string
+        return seconds
+    except ValueError:
+        # We are dealing with some other string or type
+        pass
+
+    # Expecting a string ending in [m|h|d|s|w]
+    count = int(s[:-1])
+    unit = TIME_UNITS[ s[-1] ]
+    td = timedelta(**{unit: count})
+    return td.seconds + 60 * 60 * 24 * td.days

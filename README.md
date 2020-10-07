@@ -76,11 +76,6 @@ path:
   description: The location relative to your HA config path where you want to store your rrd database files
   required: false
   type: string
-tolerance:
-  description: RRD databases with more then one DS are required to be updated simultaneously, tolerance tells how long to wait for next DS values in order to still consider simultaneous
-  required: false
-  type: int
-  default: 1second
 databases:
   description: List of RRD databases (files) 
   required: true
@@ -119,7 +114,7 @@ databases:
       type: list
       keys:
         cf: 
-          description: consolidation function (check https://oss.oetiker.ch/rrdtool/doc/rrdcreate.en.html) for available functions
+          description: consolidation function (check https://oss.oetiker.ch/rrdtool/doc/rrdcreate.en.html) for available functions. Possible values are 'MIN','MAX','AVERAGE','LAST'
           required: true
           type: list
         steps:
