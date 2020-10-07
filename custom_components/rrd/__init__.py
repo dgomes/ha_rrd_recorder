@@ -1,6 +1,4 @@
 """Support for sending data to an RRD database."""
-from threading import Timer
-import threading
 import time
 import logging
 import os.path
@@ -135,67 +133,83 @@ def setup(hass, config):
             return False
 
 
+    # List of scheduled updates. Used for cancellation during the HASS shuting down.
+    cancel_callbacks = {}
+
+
+    def schedule_next_update(database):
+        # Do not schedule any new update, when HASS is shutting down
+        if (hassIsShuttingDown):
+            return
+
+        # Scheduling
+        step = convert_to_seconds(database[CONF_STEP])
+
+        now = time.time()
+        next_update_timestamp = ((now // step) + 1) * step
+        update_after = next_update_timestamp - now
+        cancel_callback = hass.loop.call_at(hass.loop.time() + update_after, update, database)
+
+        # Add cancel callback for cancellation during HASS shutting down.
+        database_name = database[CONF_NAME]
+        cancel_callbacks[database_name] = cancel_callback
+
+
     def update(database):
         step = convert_to_seconds(database[CONF_STEP])
-        _LOGGER.debug("%s will be updated every %s seconds.", database[CONF_NAME] + ".rrd", step)
 
         rrd_filename = hass.config.path(rrd_dir, database[CONF_NAME]) + ".rrd"
 
-        while not hassIsShuttingDown:
-            # Wait for the begining of next `step` interval.
-            now = time.time()
-            nextSavingTimestamp = ((now // step) + 1) * step
-            time.sleep(nextSavingTimestamp - now)
+        # RRD data source names for store.
+        ds_names = []
+        # RRD data source values for store. Corresponding with `ds_names` variable.
+        ds_values = []
 
-            if (hassIsShuttingDown):
-                return
+        # Prepare parameters with all sensor values for `rrdtool` command
+        for data_source in database[CONF_DS]:
+            sensor_id = data_source[CONF_SENSOR]
+            ds_name = data_source[CONF_NAME]
 
-
-            # RRD data source names for store.
-            ds_names = []
-            # RRD data source values for store. Corresponding with `ds_names` variable.
-            ds_values = []
-
-            for data_source in database[CONF_DS]:
-                sensor_id = data_source[CONF_SENSOR]
-                ds_name = data_source[CONF_NAME]
-
-                # Get data value
-                sensor_state = hass.states.get(sensor_id)
-                try:
-                    if sensor_state is None:
-                        _LOGGER.debug(
-                            "[%s] Skipping sensor %s, because value is unknown.", rrd_filename, sensor_id
-                        )
-                        raise Exception("Sensor has no value or not exists.")
-
-                    sensor_value = sensor_state.state
-                    # Convert value to integer, when type is COUNTER or DERIVE.
-                    if (data_source[CONF_CF] in ["COUNTER", "DERIVE"]):
-                        sensor_value = round(float(sensor_value))
-                except:
+            # Get data value
+            sensor_state = hass.states.get(sensor_id)
+            try:
+                if sensor_state is None:
                     _LOGGER.debug(
-                        "[%s] sensor %s value will be stored as NaN.", rrd_filename, sensor_id
+                        "[%s] Skipping sensor %s, because value is unknown.", rrd_filename, sensor_id
                     )
-                    sensor_value = "NaN"
+                    raise Exception("Sensor has no value or not exists.")
 
-                # Add pais of name+value. Will be used as parameters for data save to rrd file.
-                ds_names.append(ds_name)
-                ds_values.append(str(sensor_value))
+                sensor_value = sensor_state.state
+                # Convert value to integer, when type is COUNTER or DERIVE.
+                if (data_source[CONF_CF] in ["COUNTER", "DERIVE"]):
+                    sensor_value = round(float(sensor_value))
+            except:
+                _LOGGER.info(
+                    "[%s] sensor %s value will be stored as NaN.", rrd_filename, sensor_id
+                )
+                sensor_value = "NaN"
 
-                try:
-                    template = ":".join(ds_names)
-                    timestamp = int(time.time())
-                    values_string = ":".join(ds_values)
+            # Add pais of name+value. Will be used as parameters for data save to rrd file.
+            ds_names.append(ds_name)
+            ds_values.append(str(sensor_value))
 
-                    rrdtool.update(
-                        rrd_filename, f"-t{template}", f"{timestamp}:{values_string}"
-                    )
-                    _LOGGER.debug(
-                        "%s data added. ds=%s, values=%s:%s", rrd_filename, template, timestamp, values_string
-                    )
-                except rrdtool.OperationalError as exc:
-                    _LOGGER.error(exc)
+        # Save to RRD file
+        try:
+            template = ":".join(ds_names)
+            timestamp = int(time.time())
+            values_string = ":".join(ds_values)
+
+            rrdtool.update(
+                rrd_filename, f"-t{template}", f"{timestamp}:{values_string}"
+            )
+            _LOGGER.debug(
+                "%s data added. ds=%s, values=%s:%s", rrd_filename, template, timestamp, values_string
+            )
+        except rrdtool.OperationalError as exc:
+            _LOGGER.error(exc)
+
+        # Schedule next update
+        schedule_next_update(database)
 
 
     # Executed on Home assistant start
@@ -203,18 +217,21 @@ def setup(hass, config):
         try:
             for database in conf[CONF_DBS]:
                 # Run each database updating in own thread.
-                th = threading.Thread(target=update, args=[database])
-                th.daemon = True
-                th.start()
+                schedule_next_update(database)
 
         except exc:
             _LOGGER.error(exc)
 
 
-    # Stop updating all RRD files.
+    # Stop updating all RRD files, because HASS is shutting down
     def stop(_):
-       _LOGGER.debug("Stopping data updating")
-       hassIsShuttingDown = True
+        _LOGGER.debug("Stopping data updating")
+        # Stop to schedule any new update
+        hassIsShuttingDown = True
+
+        # Cancel all already scheduled updates
+        for cancel_callback in cancel_callbacks.values():
+            cancel_callback.cancel()
 
 
     # Start to store data after app start
