@@ -3,7 +3,7 @@
 This integration is similar to other recorders (e.g. influxdb) but uses [RRDTool](https://oss.oetiker.ch/rrdtool/) as a backend.
 The main benefit of using RRD Recorder is that you can store data for long periods of time without the complexity of adding servers/addon's, unfortunantely it comes with the cost of loss of detailed information for older periods of time (the concept is that you don't need details to the second for data generated a year ago, the average of the day year ago is enough)
 
-Currently this integration also records to the RRD database files. In the future I plan for a "Camera" platform that will generate the graphs
+Currently this integration records to the RRD database files and has a "Camera" platform that will generate the graphs
 
 ## Installation
 
@@ -156,3 +156,7 @@ args:
   description: common arguments used by *rrdtool graph*
   required: false
 ```
+
+## Authors
+- Diogo Gomes
+- Martin Zaloudek
