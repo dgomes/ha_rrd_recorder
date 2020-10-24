@@ -66,7 +66,7 @@ class RRDGraph(Camera):
         self._height = height
         self._timerange = timerange
         self._args = args
-        self._unique_id = f"{self._rrd}"  # TODO use also an md5sum of args
+        self._unique_id = self._name
 
         color = iter(["#00FF00", "#0033FF"])
         self._defs = []
