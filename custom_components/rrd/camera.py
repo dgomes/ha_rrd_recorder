@@ -92,7 +92,7 @@ class RRDGraph(Camera):
                             rra_pdp_per_row = rrdinfo[f"rra[{rra_index}].pdp_per_row"]
                             rra_cf = rrdinfo[f"rra[{rra_index}].cf"]
                         except:
-                            # Previos RRA what the last in file. Nothing to process.
+                            # Previous RRA was the last in the file. Nothing to process.
                             break
                         rra_step = rra_pdp_per_row * self._step
                         cf = rrdinfo[f"rra[{rra_index}].cf"]
