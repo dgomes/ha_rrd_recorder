@@ -72,20 +72,42 @@ class RRDGraph(Camera):
         self._defs = []
         self._lines = []
         try:
-            info = rrdtool.info(self._rrd)
-            self._step = info["step"]
-            for key, value in info.items():
+            rrdinfo = rrdtool.info(self._rrd)
+            self._step = rrdinfo["step"]
+            for key, value in rrdinfo.items():
                 if ".index" in key:
-                    ds = re.search(r"\[(.*?)\]", key).group(1)
+                    ds = re.search(r"\[(.*?)\]", key).group(1)  # Datasource name
                     self._unique_id += f"_{ds}"
-                    cf = info[f"rra[{value}].cf"]
-                    self._defs.append(f"DEF:{ds.capitalize()}={self._rrd}:{ds}:{cf}")
+                    cf = rrdinfo[f"rra[0].cf"]
+
+                    # Append DEF of primary DS RRA
+                    graph_def = f"DEF:{ds.capitalize()}={rrd}:{ds}:{cf}"
+                    self._defs.append(graph_def)
+                    _LOGGER.debug('Added graph %s', graph_def)
+
+                    # Append all other RRAs as DEF with names "{ds.capitalize()}{rra_pdp_per_row}"
+                    rra_index = 1
+                    while True:
+                        try:
+                            rra_pdp_per_row = rrdinfo[f"rra[{rra_index}].pdp_per_row"]
+                            rra_cf = rrdinfo[f"rra[{rra_index}].cf"]
+                        except:
+                            # Previos RRA what the last in file. Nothing to process.
+                            break
+                        rra_step = rra_pdp_per_row * self._step
+                        cf = rrdinfo[f"rra[{rra_index}].cf"]
+                        graph_def = f"DEF:{ds.capitalize()}_{rra_cf}_{rra_pdp_per_row}={rrd}:{ds}:{cf}:step={rra_step}"
+                        self._defs.append(graph_def)
+                        _LOGGER.debug('Added graph %s', graph_def)
+                        rra_index += 1
+
+
                     # Check if args already defines LINE or AREA for our DEF, this also means the user can overwrite it
                     if [] == [
                         True
                         for line in args
                         if ds.capitalize() in line
-                        and ("LINE" in line or "AREA" in line)
+                        and ("LINE" in line or "AREA" in line or "CDEF" in line)
                     ]:
                         self._lines.append(
                             f"LINE1:{ds.capitalize()}{next(color)}:{ds.capitalize()}"
