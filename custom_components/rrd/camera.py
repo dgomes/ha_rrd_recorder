@@ -66,7 +66,7 @@ class RRDGraph(Camera):
         self._height = height
         self._timerange = timerange
         self._args = args
-        self._unique_id = self._name
+        self._unique_id = f"rrd_{self._name}"
 
         color = iter(["#00FF00", "#0033FF"])
         self._defs = []
@@ -124,7 +124,7 @@ class RRDGraph(Camera):
     @property
     def name(self) -> str:
         """Return the component name."""
-        return self._name
+        return f"rrd_{self._name}"
 
     @property
     def unique_id(self):
