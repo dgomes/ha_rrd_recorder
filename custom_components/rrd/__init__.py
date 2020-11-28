@@ -213,7 +213,7 @@ def setup(hass, config):
                 # Run each database updating in own thread.
                 schedule_next_update(database)
 
-        except exc:
+        except Exception as exc:
             _LOGGER.error(exc)
 
 
