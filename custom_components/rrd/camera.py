@@ -73,19 +73,19 @@ class RRDGraph(Camera):
         self._lines = []
         try:
             rrdinfo = rrdtool.info(self._rrd)
+            rra0_cf = rrdinfo[f"rra[0].cf"]
             self._step = rrdinfo["step"]
-            for key, value in rrdinfo.items():
+            for key in rrdinfo.keys():
                 if ".index" in key:
                     ds = re.search(r"\[(.*?)\]", key).group(1)  # Datasource name
                     self._unique_id += f"_{ds}"
-                    cf = rrdinfo[f"rra[0].cf"]
 
                     # Append DEF of primary DS RRA
-                    graph_def = f"DEF:{ds.capitalize()}={rrd}:{ds}:{cf}"
+                    graph_def = f"DEF:{ds.capitalize()}={rrd}:{ds}:{rra0_cf}"
                     self._defs.append(graph_def)
                     _LOGGER.debug('Added graph %s', graph_def)
 
-                    # Append all other RRAs as DEF with names "{ds.capitalize()}{rra_pdp_per_row}"
+                    # Append all other RRAs as DEF with names "{ds.capitalize()}_{rra_cf}_{rra_pdp_per_row}". Example "Temperature_AVERAGE_96".
                     rra_index = 1
                     while True:
                         try:
@@ -95,8 +95,7 @@ class RRDGraph(Camera):
                             # Previous RRA was the last in the file. Nothing to process.
                             break
                         rra_step = rra_pdp_per_row * self._step
-                        cf = rrdinfo[f"rra[{rra_index}].cf"]
-                        graph_def = f"DEF:{ds.capitalize()}_{rra_cf}_{rra_pdp_per_row}={rrd}:{ds}:{cf}:step={rra_step}"
+                        graph_def = f"DEF:{ds.capitalize()}_{rra_cf}_{rra_pdp_per_row}={rrd}:{ds}:{rra_cf}:step={rra_step}"
                         self._defs.append(graph_def)
                         _LOGGER.debug('Added graph %s', graph_def)
                         rra_index += 1
