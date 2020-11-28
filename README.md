@@ -3,7 +3,7 @@
 This integration is similar to other recorders (e.g. influxdb) but uses [RRDTool](https://oss.oetiker.ch/rrdtool/) as a backend.
 The main benefit of using RRD Recorder is that you can store data for long periods of time without the complexity of adding servers/addon's, unfortunantely it comes with the cost of loss of detailed information for older periods of time (the concept is that you don't need details to the second for data generated a year ago, the average of the day year ago is enough)
 
-Currently this integration records to the RRD database files and has a "Camera" platform that will generate the graphs
+Currently, this integration records to the RRD database files and has a "Camera" platform that will generate the graphs
 
 ## Installation
 
@@ -129,9 +129,36 @@ databases:
 
 ### Camera configuration
 
-The camera component tries to guess everything from the rrd file. But you can always pass new arguments in *args*.
+The camera component tries to guess everything from the rrd file. Alternatively you can always pass new arguments in `args`.
+
+#### `args`
+
+For basic rrd graph, you do not need to make any own configuration in `args`.
+In this case rrd graph will render a line for each datasource of `rrdfile` automatically.
+
+For advanced graph rendering you can use `args` for definitions of parameters CDEF, VDEF, LINE1, ARRAY, etc.
+If you will use own `args` configuration there is automatically generated DEF for each RRA of each datasource.
+
+**Example:**
+
+Rrd file `example1.rrd` has configuration:
+
+    rrdtool create example1.rrd \
+    --step '900' \
+    'DS:temperature:GAUGE:1800:U:U' \
+    'RRA:AVERAGE:0.5:4:48' \
+    'RRA:AVERAGE:0.5:96:365'     
+
+For this `example1.rrd` there are following DEF variables, which you can use in `args`.
+
+- `Temperature`
+- `Temperature_AVERAGE_4`
+- `Temperature_AVERAGE_96`
+
+*Note: As you see in example a `vname` is always a capitalized name of `ds-name`.*
 
 **Hint** use a tool such as [http://rrdwizard.appspot.com/rrdgraph.php](http://rrdwizard.appspot.com/rrdgraph.php)
+
 ```yaml
 name:
   description: Name of the camera entity 
