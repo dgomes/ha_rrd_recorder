@@ -87,13 +87,9 @@ class RRDGraph(Camera):
 
                     # Append all other RRAs as DEF with names "{ds.capitalize()}_{rra_cf}_{rra_pdp_per_row}". Example "Temperature_AVERAGE_96".
                     rra_index = 1
-                    while True:
-                        try:
-                            rra_pdp_per_row = rrdinfo[f"rra[{rra_index}].pdp_per_row"]
-                            rra_cf = rrdinfo[f"rra[{rra_index}].cf"]
-                        except:
-                            # Previous RRA was the last in the file. Nothing to process.
-                            break
+                    while f"rra[{rra_index}].cf" in rrdinfo and f"rra[{rra_index}].pdp_per_row" in rrdinfo:
+                        rra_pdp_per_row = rrdinfo[f"rra[{rra_index}].pdp_per_row"]
+                        rra_cf = rrdinfo[f"rra[{rra_index}].cf"]
                         rra_step = rra_pdp_per_row * self._step
                         graph_def = f"DEF:{ds.capitalize()}_{rra_cf}_{rra_pdp_per_row}={rrd}:{ds}:{rra_cf}:step={rra_step}"
                         self._defs.append(graph_def)
