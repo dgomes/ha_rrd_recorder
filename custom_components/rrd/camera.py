@@ -8,7 +8,7 @@ from homeassistant.helpers import config_validation as cv
 import rrdtool
 import voluptuous as vol
 
-from .const import CONF_ARGS, CONF_HEIGHT, CONF_RRD_FILE, CONF_TIMERANGE, CONF_WIDTH
+from .const import CONF_ARGS, CONF_HEIGHT, CONF_RRD_FILE, CONF_TIMERANGE, CONF_WIDTH, CONF_RRDGRAPH_OPTIONS
 from .utils import rrd_scaled_duration
 
 _LOGGER = logging.getLogger(__name__)
@@ -26,6 +26,7 @@ PLATFORM_SCHEMA = vol.All(
             vol.Optional(CONF_HEIGHT, default=120): IMAGE_RANGE,
             vol.Optional(CONF_TIMERANGE, default="1d"): rrd_scaled_duration,
             vol.Required(CONF_ARGS): vol.All(cv.ensure_list, [cv.string]),
+            vol.Optional(CONF_RRDGRAPH_OPTIONS, default=[]): vol.All(cv.ensure_list, [cv.string]),
         }
     )
 )
@@ -34,14 +35,9 @@ PLATFORM_SCHEMA = vol.All(
 def setup_platform(hass, config, add_entities, discovery_info=None):
     """Set up RRD Graph camera component."""
     name = config[CONF_NAME]
-    rrd = config[CONF_RRD_FILE]
-    width = config[CONF_WIDTH]
-    height = config[CONF_HEIGHT]
-    timerange = config[CONF_TIMERANGE]
-    args = config[CONF_ARGS]
 
     _LOGGER.debug("Setup RRD Graph %s", name)
-    add_entities([RRDGraph(name, rrd, width, height, timerange, args)], True)
+    add_entities([RRDGraph(config)], True)
 
 
 class RRDGraph(Camera):
@@ -51,7 +47,7 @@ class RRDGraph(Camera):
     Full documentation about RRDgraph at https://oss.oetiker.ch/rrdtool/doc/rrdgraph.en.html
     """
 
-    def __init__(self, name, rrd, width, height, timerange, args):
+    def __init__(self, config):
         """
         Initialize the component.
 
@@ -59,20 +55,17 @@ class RRDGraph(Camera):
         """
         super().__init__()
 
-        self._name = name
-        self._rrd = rrd
+        self._name = config[CONF_NAME]
+        rrd_file = config[CONF_RRD_FILE]
 
-        self._width = width
-        self._height = height
-        self._timerange = timerange
-        self._args = args
+        self._config = config
         self._unique_id = f"rrd_{self._name}"
 
         color = iter(["#00FF00", "#0033FF"])
         self._defs = []
         self._lines = []
         try:
-            rrdinfo = rrdtool.info(self._rrd)
+            rrdinfo = rrdtool.info(rrd_file)
             rra0_cf = rrdinfo[f"rra[0].cf"]
             self._step = rrdinfo["step"]
             for key in rrdinfo.keys():
@@ -81,7 +74,7 @@ class RRDGraph(Camera):
                     self._unique_id += f"_{ds}"
 
                     # Append DEF of primary DS RRA
-                    graph_def = f"DEF:{ds.capitalize()}={rrd}:{ds}:{rra0_cf}"
+                    graph_def = f"DEF:{ds.capitalize()}={rrd_file}:{ds}:{rra0_cf}"
                     self._defs.append(graph_def)
                     _LOGGER.debug('Added graph %s', graph_def)
 
@@ -91,7 +84,7 @@ class RRDGraph(Camera):
                         rra_pdp_per_row = rrdinfo[f"rra[{rra_index}].pdp_per_row"]
                         rra_cf = rrdinfo[f"rra[{rra_index}].cf"]
                         rra_step = rra_pdp_per_row * self._step
-                        graph_def = f"DEF:{ds.capitalize()}_{rra_cf}_{rra_pdp_per_row}={rrd}:{ds}:{rra_cf}:step={rra_step}"
+                        graph_def = f"DEF:{ds.capitalize()}_{rra_cf}_{rra_pdp_per_row}={rrd_file}:{ds}:{rra_cf}:step={rra_step}"
                         self._defs.append(graph_def)
                         _LOGGER.debug('Added graph %s', graph_def)
                         rra_index += 1
@@ -100,7 +93,7 @@ class RRDGraph(Camera):
                     # Check if args already defines LINE or AREA for our DEF, this also means the user can overwrite it
                     if [] == [
                         True
-                        for line in args
+                        for line in config[CONF_ARGS]
                         if ds.capitalize() in line
                         and ("LINE" in line or "AREA" in line or "CDEF" in line)
                     ]:
@@ -123,16 +116,16 @@ class RRDGraph(Camera):
             ret = rrdtool.graphv(
                 "-",
                 "--width",
-                str(self._width),
+                str(self._config[CONF_WIDTH]),
                 "--height",
-                str(self._height),
+                str(self._config[CONF_HEIGHT]),
                 "--start",
-                "-" + self._timerange,
+                "-" + self._config[CONF_TIMERANGE],
+                *self._config[CONF_RRDGRAPH_OPTIONS],
                 *self._defs,
                 *self._lines,
-                *self._args,
+                *self._config[CONF_ARGS],
             )
-
             return ret["image"]
         except rrdtool.OperationalError as exc:
             _LOGGER.error(exc)

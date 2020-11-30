@@ -67,6 +67,10 @@ camera:
       - "VRULE:sent#000000:MAX"
       - "AREA:Recv#00FF00:Received Bytes"
       - "LINE1:Sent#0033FF:Sent Bytes"
+    rrdgraph_options:   # Optional graph enhancements
+      - "--no-legend"
+      - "--lower-limit"
+      - "0"
 ```
 
 ### RRD Configuration
@@ -129,7 +133,38 @@ databases:
 
 ### Camera configuration
 
-The camera component tries to guess everything from the rrd file. Alternatively you can always pass new arguments in `args`.
+```yaml
+name:
+  description: Name of the camera entity 
+  required: true
+  type: string
+rrdfile:
+  description: path to the rrd file
+  required: true
+width:
+  description: width of the generated graph
+  required: false
+  default: 400
+height:
+  description: height of the generated graph
+  required: false
+  default: 100
+timerange:
+  description: amount of time to be displayed
+  required: false
+  default: 1d
+args:
+  description: common arguments used by *rrdtool graph*
+  required: false
+rrdgraph_options:
+  description: additional `rrdgraph` command line options 
+  require: false
+```
+
+The camera component renders RRD graphs for displaying in HASS frontend.
+
+It tries to guess everything from the rrd file automatically.
+Alternatively you can anytime pass new arguments in `args` or command line options in `rrdgraph_options`.
 
 #### `args`
 
@@ -159,31 +194,50 @@ For this `example1.rrd` there are following DEF variables, which you can use in 
 
 **Hint** use a tool such as [http://rrdwizard.appspot.com/rrdgraph.php](http://rrdwizard.appspot.com/rrdgraph.php)
 
+#### `rrdgraph_options`
+
+This optional configuration allows passing any additional [rrdgraph command line options](https://oss.oetiker.ch/rrdtool/doc/rrdgraph.en.html#OPTIONS).
+Each command line parameter must be defined as separate array item.
+
+**Example: Dark Mode**
+
 ```yaml
-name:
-  description: Name of the camera entity 
-  required: true
-  type: string
-rrdfile:
-  description: path to the rrd file
-  required: true
-width:
-  description: width of the generated graph
-  required: false
-  default: 400
-height:
-  description: height of the generated graph
-  required: false
-  default: 100
-timerange:
-  description: amount of time to be displayed
-  required: false
-  default: 1d
-args:
-  description: common arguments used by *rrdtool graph*
-  required: false
+rrdgraph_options:
+  - "-c"
+  - "CANVAS#000000"
+  - "-c"
+  - "FONT#FFFFFF"
+  - "-c"
+  - "BACK#1C1C1C"
+  - "-c"
+  - "SHADEA#1C1C1C"
+  - "-c"
+  - "SHADEB#1C1C1C"
+```
+
+**Example: Vertical Label**
+
+```yaml
+rrdgraph_options:
+  - "--vertical-label"
+  - "Power [W]"
+```
+
+**Example: Hiding Graph Legend**      
+
+```yaml
+rrdgraph_options:
+  - "--no-legend"
+```
+      
+**Example: Force X-axis from zero**
+
+```yaml
+rrdgraph_options:
+  - "--lower-limit"
+  - "0"
 ```
 
 ## Authors
 - Diogo Gomes
-- Martin Zaloudek
+- [Martin Zaloudek](https://github.com/ma-zal)
