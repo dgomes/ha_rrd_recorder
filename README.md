@@ -18,7 +18,7 @@ $ sudo apt-get install librrd-dev libpython3-dev
 
 If you are using Alpine Linux (the base of many Docker Images):
 ```bash
-$ apk add build-base rrdtool-dev python3-dev py-pip
+$ apk add build-base rrdtool-dev ttf-dejavu python3-dev py-pip
 ```
 
 ## Configuration
