@@ -1,13 +1,11 @@
 """Constants for InfluxDB integration."""
-from datetime import timedelta
-
 DEFAULT_DATABASE = "home_assistant.rrd"
 DOMAIN = "rrd"
 
 DEFAULT_STEP = "5m"
 RRD_DIR = "rrd"
 
-TIME_UNITS = {"s":"seconds", "m":"minutes", "h":"hours", "d":"days", "w":"weeks"}
+TIME_UNITS = {"s": "seconds", "m": "minutes", "h": "hours", "d": "days", "w": "weeks"}
 
 CONF_DBS = "databases"
 CONF_DS = "data_sources"
