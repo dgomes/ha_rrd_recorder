@@ -1,5 +1,5 @@
 {
-  "version": "0.1.0",
+  "version": "0.1.1",
   "domain": "rrd",
   "name": "RRD Recorder",
   "documentation": "https://github.com/dgomes/rrd_recorder",
