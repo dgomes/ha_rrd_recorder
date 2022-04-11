@@ -104,7 +104,7 @@ class RRDGraph(Camera):
             _LOGGER.error(exc)
         self._unique_id += f"_{self._step}"
 
-    def camera_image(self):
+    def camera_image(self, width, height):
         """
         Return a still image response from the camera.
 
@@ -112,13 +112,18 @@ class RRDGraph(Camera):
         """
         _LOGGER.debug("Get RRD camera image")
 
+        if not width:
+            width = self._config[CONF_WIDTH]
+        if not height:
+            height = self._config[CONF_HEIGHT]
+
         try:
             ret = rrdtool.graphv(
                 "-",
                 "--width",
-                str(self._config[CONF_WIDTH]),
+                width,
                 "--height",
-                str(self._config[CONF_HEIGHT]),
+                height,
                 "--start",
                 "-" + self._config[CONF_TIMERANGE],
                 *self._config[CONF_RRDGRAPH_OPTIONS],
