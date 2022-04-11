@@ -121,9 +121,9 @@ class RRDGraph(Camera):
             ret = rrdtool.graphv(
                 "-",
                 "--width",
-                width,
+                str(width),
                 "--height",
-                height,
+                str(height),
                 "--start",
                 "-" + self._config[CONF_TIMERANGE],
                 *self._config[CONF_RRDGRAPH_OPTIONS],
