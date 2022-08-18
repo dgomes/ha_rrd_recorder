@@ -7,6 +7,10 @@ Currently, this integration records to the RRD database files and has a "Camera"
 
 ## Installation
 
+If you are running Home Assistant OS or Container, you don't need to install anything extra.
+
+### Operating System dependencies
+
 RRD Recorder depends on librrd which is a C library. 
 
 You will need to follow the steps in https://pythonhosted.org/rrdtool/install.html before this integration will work.
