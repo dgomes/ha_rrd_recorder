@@ -1,6 +1,6 @@
 """Constants for RRD integration."""
 DEFAULT_DATABASE = "home_assistant.rrd"
-DOMAIN = "rrd"
+DOMAIN = "rrd_recorder"
 
 DEFAULT_STEP = "5m"
 RRD_DIR = "rrd"
