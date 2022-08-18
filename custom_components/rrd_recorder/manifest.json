@@ -1,6 +1,6 @@
 {
   "version": "0.1.4",
-  "domain": "rrd",
+  "domain": "rrd_recorder",
   "name": "RRD Recorder",
   "documentation": "https://github.com/dgomes/ha_rrd_recorder",
   "requirements": ["rrdtool==0.1.15"],
