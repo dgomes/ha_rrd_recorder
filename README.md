@@ -25,6 +25,29 @@ If you are using Alpine Linux (the base of many Docker Images):
 $ apk add build-base rrdtool-dev ttf-dejavu python3-dev py-pip
 ```
 
+### Actual integration installation
+
+## Manual
+
+- Place the custom_components folder in your configuration directory (or add its contents to an existing custom_components folder). It should look similar to this:
+
+```
+<config directory>/
+|-- custom_components/
+|   |-- rrd_recorder/
+|       |-- __init__.py
+|       |-- camera.py
+|       |-- const.py
+|       |-- manifest.py
+|       |-- utils.py
+```
+
+- Edit your configuration.yaml file according to the example bellow 
+
+## HACS
+
+If you want HACS to handle installation and updates, add _RRD Recorder_ as a custom repository or find it in the default list of custom integrations.
+
 ## Configuration
 
 Example:
