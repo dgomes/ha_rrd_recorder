@@ -1,10 +1,10 @@
 {
-  "version": "0.1.1",
+  "version": "0.1.4",
   "domain": "rrd",
   "name": "RRD Recorder",
-  "documentation": "https://github.com/dgomes/rrd_recorder",
+  "documentation": "https://github.com/dgomes/ha_rrd_recorder",
   "requirements": ["rrdtool==0.1.15"],
   "codeowners": ["@dgomes"],
-  "issue_tracker": "https://github.com/dgomes/rrd_recorder/issues",
+  "issue_tracker": "https://github.com/dgomes/ha_rrd_recorder/issues",
   "iot_class": "calculated"
 }
