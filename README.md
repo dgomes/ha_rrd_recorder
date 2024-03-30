@@ -54,7 +54,7 @@ Example:
 
 ```yaml
 # Example configuration.yaml
-rrd:
+rrd_recorder:
   path: '/rrd'
   databases:
     - name: internet_connection
