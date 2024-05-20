@@ -1,3 +1,6 @@
+# THIS PROJECT IS OBSOLETE
+Ever since the introducation of [Long-term statistics](https://data.home-assistant.io/docs/statistics/) this project reason to exist has vanished. 
+
 # RRD Recorder for Home Assistant
 
 This integration is similar to other recorders (e.g. influxdb) but uses [RRDTool](https://oss.oetiker.ch/rrdtool/) as a backend.
